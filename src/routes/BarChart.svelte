@@ -9,8 +9,16 @@
 
 	// dimensions
 
-	const width = 500;
-	const height = 500;
+	let borderBoxSize;
+
+	$: width = borderBoxSize
+		? Math.min(borderBoxSize[0].blockSize, borderBoxSize[0].inlineSize)
+		: 400;
+
+	$: height = borderBoxSize
+		? Math.min(borderBoxSize[0].blockSize, borderBoxSize[0].inlineSize)
+		: 400;
+
 	const margin = { top: 25, right: 20, bottom: 50, left: 60 };
 
 	// filter the dataset by index
@@ -40,7 +48,7 @@
 		.padding(0.1);
 </script>
 
-<div>
+<div class="barchart" bind:borderBoxSize>
 	<svg {height} {width}>
 		<!-- bars -->
 		<g>
@@ -62,6 +70,14 @@
 </div>
 
 <style>
+	.barchart {
+		/* take up extra horizontal space in the parent */
+		flex: 1;
+		/* be as tall as the parent div */
+		height: 100%;
+	}
+
+	/* animate changes to the lengths of the bars */
 	rect {
 		transition: width 250ms;
 	}

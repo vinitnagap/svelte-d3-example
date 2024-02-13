@@ -1,9 +1,11 @@
 <script>
 	import './style.css';
+	import * as d3 from 'd3';
 	import Scatterplot from './Scatterplot.svelte';
 	import FeatureControls from './FeatureControls.svelte';
 	import BarChart from './BarChart.svelte';
-	import * as d3 from 'd3';
+	import PlayerList from './PlayerList.svelte';
+	import ColorLegend from './ColorLegend.svelte';
 
 	// data comes from the load function in +page.js
 	export let data;
@@ -21,6 +23,14 @@
 		selectedIndices = indices;
 	}
 
+	// data point that is highlighted in the list
+	let highlightedPlayer = null;
+
+	// callback function to update highlightedPlayer when the list is hovered over
+	function onhover(player) {
+		highlightedPlayer = player;
+	}
+
 	// get the unique categories in the dataset sorted by count
 	$: categories = d3
 		.groupSort(
@@ -34,9 +44,21 @@
 </script>
 
 <div class="container">
-	<FeatureControls dataset={data.dataset} bind:xFeature bind:yFeature bind:colorFeature />
-	<div class="plots">
-		<Scatterplot dataset={data.dataset} {xFeature} {yFeature} {colorFeature} {color} {onbrush} />
+	<div class="header">
+		<FeatureControls dataset={data.dataset} bind:xFeature bind:yFeature bind:colorFeature />
+		<ColorLegend {color} {colorFeature} />
+	</div>
+	<div class="main">
+		<PlayerList dataset={data.dataset} {selectedIndices} {onhover} />
+		<Scatterplot
+			dataset={data.dataset}
+			{xFeature}
+			{yFeature}
+			{colorFeature}
+			{color}
+			{highlightedPlayer}
+			{onbrush}
+		/>
 		<BarChart dataset={data.dataset} feature={colorFeature} {selectedIndices} {color} />
 	</div>
 </div>
@@ -57,11 +79,21 @@
 		gap: 2em;
 	}
 
-	.plots {
-		/* place the plots next to each other, vertically centered and 80px apart */
+	/* place the feature controls and color legend next to each other */
+	.header {
 		display: flex;
-		flex-direction: row;
+		gap: 2em;
 		align-items: center;
-		gap: 5em;
+	}
+
+	.main {
+		/* make this div take up the rest of the container */
+		flex: 1;
+		/* allow the div to shrink */
+		min-height: 0;
+		/* place the children next to each other */
+		display: flex;
+		/* add space between them */
+		gap: 2em;
 	}
 </style>
